@@ -1,40 +1,30 @@
-﻿using Sandbox.Game.EntityComponents;
+﻿using IngameScript.Pulse.EnvironmentVariables;
 using Sandbox.ModAPI.Ingame;
-using Sandbox.ModAPI.Interfaces;
-using SpaceEngineers.Game.ModAPI.Ingame;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
-using System.Text;
-using VRage;
-using VRage.Collections;
-using VRage.Game;
-using VRage.Game.Components;
-using VRage.Game.GUI.TextPanel;
-using VRage.Game.ModAPI.Ingame;
-using VRage.Game.ModAPI.Ingame.Utilities;
-using VRage.Game.ObjectBuilders.Definitions;
-using VRageMath;
 
 namespace IngameScript
 {
     partial class Program : MyGridProgram
-    {     
+    {
+        public readonly IEnvironment Environment;
+
         public Program()
         {
-            
-        }
-
-        public void Save()
-        {
-            
+            Environment = new MyIniConfigParser(Me);
         }
 
         public void Main(string argument, UpdateType updateSource)
         {
-            
+            Echo(Environment.Get("Grid;Hello"));
+
+            var ini = Environment as IMyIni;
+
+            if(ini != null)
+            {
+                var a = ini.Get("Grid", "A").ToInt32();
+                var b = ini.Get("Grid", "B").ToInt32();
+
+                Echo($"\n Sum {a + b}");
+            }         
         }
     }
 }

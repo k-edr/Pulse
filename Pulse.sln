@@ -5,6 +5,8 @@ VisualStudioVersion = 17.8.34511.84
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserScriptTemplate", "UserScriptTemplate\UserScriptTemplate.csproj", "{C6F1B595-2CE6-4498-9DF2-6FE8C3DAA687}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EnvironmentVariables", "EnvironmentVariables\EnvironmentVariables.csproj", "{DE47E223-690B-4114-BB96-4BF0111942ED}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -12,6 +14,8 @@ Global
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{C6F1B595-2CE6-4498-9DF2-6FE8C3DAA687}.Debug|x64.ActiveCfg = Debug|x64
 		{C6F1B595-2CE6-4498-9DF2-6FE8C3DAA687}.Debug|x64.Build.0 = Debug|x64
+		{DE47E223-690B-4114-BB96-4BF0111942ED}.Debug|x64.ActiveCfg = Debug|x64
+		{DE47E223-690B-4114-BB96-4BF0111942ED}.Debug|x64.Build.0 = Debug|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
