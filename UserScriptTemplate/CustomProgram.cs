@@ -8,7 +8,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
-using static VRage.Game.VisualScripting.ScriptBuilder.MyVSAssemblyProvider;
 
 namespace IngameScript
 {
@@ -40,11 +39,11 @@ namespace IngameScript
 
         public void Main(string argument, UpdateType updateSource)
         {
-            ExecuteCommands(argument, updateSource);
+            ExecuteCommand(argument, updateSource);
             ExecuteCycle(argument, updateSource);
         }
 
-        private void ExecuteCommands(string argument,UpdateType updateSource)
+        private void ExecuteCommand(string argument,UpdateType updateSource)
         {
             if (((updateSource & (UpdateType.Terminal | UpdateType.Trigger)) != 0) &&
                 argument != string.Empty)
