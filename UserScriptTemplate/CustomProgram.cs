@@ -53,7 +53,7 @@ namespace IngameScript
             {
                 ArgumentProvider = new ArgumentProvider(argument);
 
-                char splitter = Environment.Get("Grid", "CommandSplitter").ToChar();
+                char splitter = (char)Environment.Get("Grid", "CommandSplitter").ToInt32();
 
                 string command = argument;
 
