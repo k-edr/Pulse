@@ -13,7 +13,6 @@ Pulse is a set of tools and modules designed to simplify the process of script d
 - **Testing**: Tools for writing and running script tests.
 - **Environment Variables**: Managing configurations and settings.
 - **Statistics Module**: Collecting and analyzing statistical data.
-- **DI Containers**: Dependency injection to facilitate modularity and testing.
 - **Space Point Map**: Working with coordinates and points in space.
 - **Navigation Module**: Route building and navigation in space.
 - **File Manager**: Working with TextPanel as a file manager.
