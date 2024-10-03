@@ -52,6 +52,16 @@
     <AdditionalFiles Include="thumb.png" />
     <AdditionalFiles Include="MDK\whitelist.cache" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\EnvironmentVariables\EnvironmentVariables.csproj">
+      <Project>{de47e223-690b-4114-bb96-4bf0111942ed}</Project>
+      <Name>EnvironmentVariables</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Logging\Logging.csproj">
+      <Project>{2fe40bdd-faaa-476a-b8b5-8da569fceb1b}</Project>
+      <Name>Logging</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="AfterBuild">
     <Copy SourceFiles="MDK\MDK.options.props" DestinationFolder="$(TargetDir)\MDK" />
