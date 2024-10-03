@@ -28,9 +28,9 @@ namespace IngameScript.Pulse.CommandInteface
 
         }
        
-        public void TryGet(string command, out Action action)
+        public bool TryGet(string command, out Action action)
         {
-            _commands.TryGetValue(command, out action);
+            return _commands.TryGetValue(command, out action);
         }
 
         public bool TryAdd(string command, Action<IDataProvider> action, IDataProvider provider)

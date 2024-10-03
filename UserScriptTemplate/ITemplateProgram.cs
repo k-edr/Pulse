@@ -4,7 +4,7 @@ namespace IngameScript
 {
     public interface ITemplateProgram
     {
-        void Execute(string argument, UpdateType updateSource);
+        void ExecuteCycle(string argument, UpdateType updateSource);
 
         void Init();
     }

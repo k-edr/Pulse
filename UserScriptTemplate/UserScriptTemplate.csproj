@@ -53,6 +53,10 @@
     <AdditionalFiles Include="MDK\whitelist.cache" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\CommandInterface\CommandInterface.csproj">
+      <Project>{d9423093-1113-4485-bb94-9f52a8063a1f}</Project>
+      <Name>CommandInterface</Name>
+    </ProjectReference>
     <ProjectReference Include="..\EnvironmentVariables\EnvironmentVariables.csproj">
       <Project>{de47e223-690b-4114-bb96-4bf0111942ed}</Project>
       <Name>EnvironmentVariables</Name>
