@@ -1,6 +1,8 @@
 ﻿using IngameScript.Pulse.CommandInteface;
 using IngameScript.Pulse.EnvironmentVariables;
 using IngameScript.Pulse.Logging;
+using IngameScript.Pulse.Logging.Interfaces;
+using IngameScript.Pulse.Logging.Services;
 using Sandbox.ModAPI.Ingame;
 using System;
 using System.Collections.Generic;
@@ -27,7 +29,8 @@ namespace IngameScript
 
             Logger = new FlushLogger(
                 new PanelLogger(
-                    GridTerminalSystem.GetBlockWithName(
+                    loggerLevel: LogLevelParser.Parse(Environment.Get("Grid", "LoggingLevel").ToString()),
+                    textPanel: GridTerminalSystem.GetBlockWithName(
                         Environment.Get("Grid", "LoggerPanel").ToString()) as IMyTextPanel));
 
             Register = CommandRegister.Register;
