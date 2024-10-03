@@ -1,4 +1,6 @@
-﻿using Sandbox.ModAPI.Ingame;
+﻿using IngameScript.Pulse.Logging.Bases;
+using IngameScript.Pulse.Logging.Enums;
+using Sandbox.ModAPI.Ingame;
 namespace IngameScript.Pulse.Logging
 {
     public class PanelLogger : BaseLogger

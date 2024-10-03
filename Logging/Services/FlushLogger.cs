@@ -1,5 +1,8 @@
-﻿using System.Text;
-namespace IngameScript.Pulse.Logging
+﻿using IngameScript.Pulse.Logging.Bases;
+using IngameScript.Pulse.Logging.Enums;
+using IngameScript.Pulse.Logging.Interfaces;
+using System.Text;
+namespace IngameScript.Pulse.Logging.Services
 {
     public class FlushLogger : BaseLogger, IFlushable
     {

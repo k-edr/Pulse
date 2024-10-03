@@ -1,4 +1,6 @@
 ﻿using IngameScript.Pulse.Logging;
+using IngameScript.Pulse.Logging.Interfaces;
+using IngameScript.Pulse.Logging.Services;
 using Sandbox.Game.EntityComponents;
 using Sandbox.ModAPI.Ingame;
 using Sandbox.ModAPI.Interfaces;

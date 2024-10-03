@@ -1,4 +1,7 @@
-﻿namespace IngameScript.Pulse.Logging
+﻿using IngameScript.Pulse.Logging.Enums;
+using IngameScript.Pulse.Logging.Interfaces;
+
+namespace IngameScript.Pulse.Logging.Bases
 {
     public abstract class BaseLogger : ILoggable
     {

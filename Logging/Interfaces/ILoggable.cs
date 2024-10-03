@@ -1,4 +1,6 @@
-﻿namespace IngameScript.Pulse.Logging
+﻿using IngameScript.Pulse.Logging.Enums;
+
+namespace IngameScript.Pulse.Logging.Interfaces
 {
     public interface ILoggable
     {

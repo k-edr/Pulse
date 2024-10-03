@@ -1,7 +1,9 @@
-﻿using System;
-namespace IngameScript.Pulse.Logging
+﻿using IngameScript.Pulse.Logging.Bases;
+using IngameScript.Pulse.Logging.Enums;
+using System;
+namespace IngameScript.Pulse.Logging.Services
 {
-    class EchoLogger : BaseLogger
+    public class EchoLogger : BaseLogger
     {
         Action<string> _echo;
 

@@ -1,4 +1,4 @@
-﻿namespace IngameScript.Pulse.Logging
+﻿namespace IngameScript.Pulse.Logging.Enums
 {
     public enum LogLevel
     {   
