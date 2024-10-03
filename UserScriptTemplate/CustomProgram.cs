@@ -10,7 +10,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
-using static VRage.Game.VisualScripting.ScriptBuilder.MyVSAssemblyProvider;
 
 namespace IngameScript
 {
@@ -54,14 +53,22 @@ namespace IngameScript
             {
                 ArgumentProvider = new ArgumentProvider(argument);
 
+                char splitter = Environment.Get("Grid", "CommandSplitter").ToChar();
+
+                string command = argument;
+
                 Action action;
 
-                if (Register.TryGet(argument, out action))
+                if (argument.Contains(splitter))
+                {
+                    command = argument.Split(splitter)[0];
+                }
+
+                if (Register.TryGet(command, out action))
                 {
                     action.Invoke();
                 }
 
-                return;
             }
         }
 
