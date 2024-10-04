@@ -1,4 +1,6 @@
 ﻿using IngameScript.Pulse.CommandInteface;
+using IngameScript.Pulse.ContiniousExecution.Interfaces;
+using IngameScript.Pulse.ContiniousExecution.Services;
 using IngameScript.Pulse.EnvironmentVariables;
 using IngameScript.Pulse.Logging;
 using IngameScript.Pulse.Logging.Interfaces;
@@ -15,13 +17,15 @@ namespace IngameScript
 {
     public partial class Program : MyGridProgram
     {
-        protected IMyIni Environment;
+        public IMyIni Environment;
 
-        protected ILoggable Logger;
+        public ILoggable Logger;
 
-        protected CommandRegister Register;
+        public CommandRegister Register;
 
-        protected IDataProvider ArgumentProvider;
+        public IDataProvider ArgumentProvider;
+
+        public readonly IContiniousExecutor ContiniousExecutor;
 
         public Program()
         {
@@ -34,6 +38,8 @@ namespace IngameScript
                         Environment.Get("Grid", "LoggerPanel").ToString()) as IMyTextPanel));
 
             Register = CommandRegister.Register;
+
+            ContiniousExecutor = new OneTaskPerCycleExexutor(Logger);
 
             ArgumentProvider = new ArgumentProvider();
 

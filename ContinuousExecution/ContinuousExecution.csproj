@@ -4,10 +4,10 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{C6F1B595-2CE6-4498-9DF2-6FE8C3DAA687}</ProjectGuid>
+    <ProjectGuid>{C5DD5895-D878-4489-A2B3-5A6A2F09A4C7}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <RootNamespace>IngameScript</RootNamespace>
-    <AssemblyName>UserScriptTemplate</AssemblyName>
+    <AssemblyName>ContinuousExecution</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -23,6 +23,7 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>true</Prefer32Bit>
     <LangVersion>6</LangVersion>
+    <IntermediateOutputPath>C:\Users\KEDRAD~1\AppData\Local\Temp\vs3E93.tmp\x64\Debug\</IntermediateOutputPath>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="netstandard" />
@@ -38,8 +39,8 @@
   <Import Project="MDK/MDK.options.props" />
   <Import Project="MDK/MDK.paths.props" Condition="exists('MDK/MDK.paths.props')" />
   <ItemGroup>
-    <Compile Include="CustomProgram.cs" />
-    <Compile Include="ITemplateProgram.cs" />
+    <Compile Include="Interfaces\IContiniousExecutor.cs" />
+    <Compile Include="Models\ContiniousTask.cs" />
     <Compile Include="MDK\Bootstrapper.cs" />
     <AdditionalFiles Include="MDK\MDK.options.props">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -47,18 +48,13 @@
     <AdditionalFiles Include="MDK\MDK.paths.props">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </AdditionalFiles>
+    <Compile Include="Services\OneTaskPerCycleExexutor.cs" />
     <Compile Include="Program.cs" />
     <AdditionalFiles Include="Instructions.readme" />
     <AdditionalFiles Include="thumb.png" />
     <AdditionalFiles Include="MDK\whitelist.cache" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="CustomDataExample.ini" />
-  </ItemGroup>
   <Import Project="..\Mixin\Logging\Logging.projitems" Label="Shared" />
-  <Import Project="..\Mixin\ContiniousExecution\ContiniousExecution.projitems" Label="Shared" />
-  <Import Project="..\Mixin\CommandInterface\CommandInterface.projitems" Label="Shared" />
-  <Import Project="..\Mixin\EnvironmentVariables\EnvironmentVariables.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="AfterBuild">
     <Copy SourceFiles="MDK\MDK.options.props" DestinationFolder="$(TargetDir)\MDK" />
