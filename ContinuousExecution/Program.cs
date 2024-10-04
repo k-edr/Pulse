@@ -1,4 +1,7 @@
-﻿using Sandbox.Game.EntityComponents;
+﻿using IngameScript.Pulse.ContiniousExecution;
+using IngameScript.Pulse.Logging.Interfaces;
+using IngameScript.Pulse.Logging.Services;
+using Sandbox.Game.EntityComponents;
 using Sandbox.ModAPI.Ingame;
 using Sandbox.ModAPI.Interfaces;
 using SpaceEngineers.Game.ModAPI.Ingame;
@@ -21,144 +24,185 @@ using VRageMath;
 namespace IngameScript
 {
     partial class Program : MyGridProgram
-    {       
+    {
+        ContiniousExecutor Executor;
+
+        ILoggable Logger;
         public Program()
         {
-            
+            Logger = new FlushLogger(new EchoLogger(Echo));
+
+            Executor = new ContiniousExecutor(Logger);
+
+            Executor.Add(new ContiniousTask(GenerateArr, IncreaseOneArr, IncreaseOneArr, IncreaseOneArr));
+            Executor.Add(new ContiniousTask(GenerateArr, IncreaseOneArr, IncreaseOneArr, IncreaseOneArr));
+            Executor.Add(new ContiniousTask(GenerateArr, IncreaseOneArr, IncreaseOneArr, IncreaseOneArr));
+
         }
-     
+
         public void Main(string argument, UpdateType updateSource)
+        {           
+            long i = 1;
+            while (true)
+            {
+                Logger.LogLine("Program Tick: " + i++ + " ");
+                Executor.Execute(new NTicksTimeProvider(10));
+
+                if (i == 10) break;
+            }
+
+            Logger.Log("");
+        }
+
+        object IncreaseOneArr(object obj)
         {
-           
+            int[] arr = (int[])obj;
+
+            for (int i = 1; i < arr.Length; i++)
+            {
+                arr[i-1]= i*5;
+            }
+
+            return arr;
+        }
+
+        object GenerateArr(object obj)
+        {
+            return new int[10000];
         }
     }
 }
 
-namespace IngameScript.Pulse.ContinuousExecution
+namespace IngameScript.Pulse.ContiniousExecution
 {
-    class Task
+
+    class MaxPossibleTimeProvider : IAvailableTimeProvider
     {
-        private Action _action;
-
-        public SubTask Next { get; } = null;
-
-        public bool Executed { get; private set; } = false;
-
-        public void Run()
+        public TimeSpan Get()
         {
-            _action.Invoke();
+            return TimeSpan.MaxValue;
+        }
+    }
+    class NTicksTimeProvider : IAvailableTimeProvider
+    {
+        private int _ticks;
+        public NTicksTimeProvider(int ticks)
+        {
+            _ticks = ticks;
         }
 
-        public Task(Action action)
+        public TimeSpan Get()
         {
-            _action = action;
+            return TimeSpan.FromTicks(_ticks);
+        }
+    }
+
+    interface IAvailableTimeProvider
+    {
+        TimeSpan Get();
+    }
+
+    public enum TaskExecutionStatus
+    {
+        None = 0,
+        NotExecuted = 1,
+        NotFullyExecuted = 2,
+        FullyExecuted = 4
+    }
+
+    class ContiniousTask
+    {
+        private Func<object, object>[] _subTasks;
+
+        private object _lastReturnedValue = null;
+
+        public int TaskIndex { get; private set; }
+
+        public int TotalSubTasks => _subTasks.Length;
+
+        public TaskExecutionStatus TaskExecutionStatus { get; private set; } = TaskExecutionStatus.NotExecuted;
+
+        public ContiniousTask(params Func<object, object>[] subTasks)
+        {
+            _subTasks = subTasks;
         }
 
-        public Task(Action action, IEnumerable<Func<object, object[]>> subTasks) : this(action)
+        public TaskExecutionStatus ExecuteNext()
         {
-            var enumerator = subTasks.GetEnumerator();
-
-            Next = new SubTask(enumerator.Current);
-
-            var temp = Next;
-            while (enumerator.MoveNext())
+            if (TaskIndex < _subTasks.Length)
             {
-                temp.Next = new SubTask(enumerator.Current);
+                _lastReturnedValue = _subTasks[TaskIndex++].Invoke(_lastReturnedValue);
 
-                temp = temp.Next;
+                TaskExecutionStatus = TaskExecutionStatus.NotFullyExecuted;
             }
-            
+
+            if (TaskIndex >= _subTasks.Length)
+            {
+                TaskExecutionStatus = TaskExecutionStatus.FullyExecuted;
+            }
+
+            return TaskExecutionStatus;
         }
     }
 
-    class SubTask
+    class ContiniousExecutor
     {
-        private Func<object, object[]> _func;
+        private List<ContiniousTask> _tasks = new List<ContiniousTask>();
 
-        public SubTask Next = null;
-
-        public bool Executed { get; private set; } = false;
-
-        public object Run(object[] args = null)
+        private ILoggable _logger;
+        public ContiniousExecutor(ILoggable logger)
         {
-            var result = _func.Invoke(args);
-
-            Executed = true;
-
-            return result;
+            _logger = logger;
         }
 
-        public SubTask(Func<object, object[]> func) 
-        {
-            _func = func;
-        }
+        public void Add(ContiniousTask task)
+            => _tasks.Add(task);
 
-        public SubTask(Func<object, object[]> func, SubTask next) : this(func)
-        {
-            Next = next;
-        }
-    }
+        public bool Remove(ContiniousTask task)
+            => _tasks.Remove(task);
 
-    class Executor
-    {
-        private List<Task> _tasks = new List<Task>();
+        public bool Contains(ContiniousTask task)
+            => _tasks.Contains(task);
 
-        public void Run(long availableTicks = -1)
+        public void Execute(IAvailableTimeProvider availableTime)
         {
+            var executedTasksToRemove = new List<ContiniousTask>();
+
+            var availableTicks = availableTime.Get().Ticks;
             long usedTicks = 0;
-            bool hasTimeLimit = availableTicks >= 0;
 
             foreach (var task in _tasks)
             {
-                if (!task.Executed)
+                if (usedTicks >= availableTicks)
+                    break;
+
+                if (task.TaskExecutionStatus == TaskExecutionStatus.NotExecuted)
                 {
-                    if (!hasTimeLimit || usedTicks < availableTicks)
-                    {
-                        usedTicks += ExecuteTask(task, ref usedTicks, availableTicks, hasTimeLimit);
-                    }
+                    _logger.LogLine("Start task executing " + task.GetHashCode());
+                }
+                else if (task.TaskExecutionStatus == TaskExecutionStatus.NotFullyExecuted)
+                {
+                    _logger.LogLine("Continue task execution ");
                 }
 
-                var subTask = task.Next;
-                while (subTask != null && (!hasTimeLimit || usedTicks < availableTicks))
+                while (usedTicks < availableTicks && task.TaskExecutionStatus != TaskExecutionStatus.FullyExecuted)
                 {
-                    if (!subTask.Executed)
-                    {
-                        usedTicks += ExecuteSubTask(subTask, ref usedTicks, availableTicks, hasTimeLimit);
-                    }
-                    subTask = subTask.Next;
+                    var start = DateTime.Now;
+                    task.ExecuteNext();
+                    var end = DateTime.Now;
+                    //usedTicks += (end - start).Ticks; // Simulate that each task execution consumes 1 tick
+                    usedTicks += 1;
+                }
+
+                if (task.TaskExecutionStatus == TaskExecutionStatus.FullyExecuted)
+                {
+                    executedTasksToRemove.Add(task);
+                    _logger.LogLine("Finished task execution " + task.GetHashCode());
                 }
             }
+
+            executedTasksToRemove.ForEach(t => _tasks.Remove(t));
         }
 
-        private long ExecuteSubTask(SubTask task, ref long usedTicks, long availableTicks, bool hasTimeLimit)
-        {
-            var start = DateTime.Now;
-
-            task.Run();
-
-            var end = DateTime.Now;
-            return (end - start).Ticks;
-        }
-
-        private long ExecuteTask(Task task, ref long usedTicks, long availableTicks, bool hasTimeLimit)
-        {
-            var start = DateTime.Now;
-
-            task.Run();
-
-            var end = DateTime.Now;
-            return (end - start).Ticks;
-        }
-
-
-        public void Add(Task task)
-        {
-            _tasks.Add(task);
-        }
-
-        public void Remove(Task task)
-        {
-            _tasks.Remove(task);
-        }
     }
 }
