@@ -21,63 +21,144 @@ using VRageMath;
 namespace IngameScript
 {
     partial class Program : MyGridProgram
-    {
-        // This file contains your actual script.
-        //
-        // You can either keep all your code here, or you can create separate
-        // code files to make your program easier to navigate while coding.
-        //
-        // In order to add a new utility class, right-click on your project, 
-        // select 'New' then 'Add Item...'. Now find the 'Space Engineers'
-        // category under 'Visual C# Items' on the left hand side, and select
-        // 'Utility Class' in the main area. Name it in the box below, and
-        // press OK. This utility class will be merged in with your code when
-        // deploying your final script.
-        //
-        // You can also simply create a new utility class manually, you don't
-        // have to use the template if you don't want to. Just do so the first
-        // time to see what a utility class looks like.
-        // 
-        // Go to:
-        // https://github.com/malware-dev/MDK-SE/wiki/Quick-Introduction-to-Space-Engineers-Ingame-Scripts
-        //
-        // to learn more about ingame scripts.
-
+    {       
         public Program()
         {
-            // The constructor, called only once every session and
-            // always before any other method is called. Use it to
-            // initialize your script. 
-            //     
-            // The constructor is optional and can be removed if not
-            // needed.
-            // 
-            // It's recommended to set Runtime.UpdateFrequency 
-            // here, which will allow your script to run itself without a 
-            // timer block.
+            
         }
-
-        public void Save()
-        {
-            // Called when the program needs to save its state. Use
-            // this method to save your state to the Storage field
-            // or some other means. 
-            // 
-            // This method is optional and can be removed if not
-            // needed.
-        }
-
+     
         public void Main(string argument, UpdateType updateSource)
         {
-            // The main entry point of the script, invoked every time
-            // one of the programmable block's Run actions are invoked,
-            // or the script updates itself. The updateSource argument
-            // describes where the update came from. Be aware that the
-            // updateSource is a  bitfield  and might contain more than 
-            // one update type.
-            // 
-            // The method itself is required, but the arguments above
-            // can be removed if not needed.
+           
+        }
+    }
+}
+
+namespace IngameScript.Pulse.ContinuousExecution
+{
+    class Task
+    {
+        private Action _action;
+
+        public SubTask Next { get; } = null;
+
+        public bool Executed { get; private set; } = false;
+
+        public void Run()
+        {
+            _action.Invoke();
+        }
+
+        public Task(Action action)
+        {
+            _action = action;
+        }
+
+        public Task(Action action, IEnumerable<Func<object, object[]>> subTasks) : this(action)
+        {
+            var enumerator = subTasks.GetEnumerator();
+
+            Next = new SubTask(enumerator.Current);
+
+            var temp = Next;
+            while (enumerator.MoveNext())
+            {
+                temp.Next = new SubTask(enumerator.Current);
+
+                temp = temp.Next;
+            }
+            
+        }
+    }
+
+    class SubTask
+    {
+        private Func<object, object[]> _func;
+
+        public SubTask Next = null;
+
+        public bool Executed { get; private set; } = false;
+
+        public object Run(object[] args = null)
+        {
+            var result = _func.Invoke(args);
+
+            Executed = true;
+
+            return result;
+        }
+
+        public SubTask(Func<object, object[]> func) 
+        {
+            _func = func;
+        }
+
+        public SubTask(Func<object, object[]> func, SubTask next) : this(func)
+        {
+            Next = next;
+        }
+    }
+
+    class Executor
+    {
+        private List<Task> _tasks = new List<Task>();
+
+        public void Run(long availableTicks = -1)
+        {
+            long usedTicks = 0;
+            bool hasTimeLimit = availableTicks >= 0;
+
+            foreach (var task in _tasks)
+            {
+                if (!task.Executed)
+                {
+                    if (!hasTimeLimit || usedTicks < availableTicks)
+                    {
+                        usedTicks += ExecuteTask(task, ref usedTicks, availableTicks, hasTimeLimit);
+                    }
+                }
+
+                var subTask = task.Next;
+                while (subTask != null && (!hasTimeLimit || usedTicks < availableTicks))
+                {
+                    if (!subTask.Executed)
+                    {
+                        usedTicks += ExecuteSubTask(subTask, ref usedTicks, availableTicks, hasTimeLimit);
+                    }
+                    subTask = subTask.Next;
+                }
+            }
+        }
+
+        private long ExecuteSubTask(SubTask task, ref long usedTicks, long availableTicks, bool hasTimeLimit)
+        {
+            var start = DateTime.Now;
+
+            task.Run();
+
+            var end = DateTime.Now;
+            return (end - start).Ticks;
+        }
+
+        private long ExecuteTask(Task task, ref long usedTicks, long availableTicks, bool hasTimeLimit)
+        {
+            var start = DateTime.Now;
+
+            task.Run();
+
+            var end = DateTime.Now;
+            return (end - start).Ticks;
+        }
+
+
+        public void Add(Task task)
+        {
+            _tasks.Add(task);
+        }
+
+        public void Remove(Task task)
+        {
+            _tasks.Remove(task);
         }
     }
 }
