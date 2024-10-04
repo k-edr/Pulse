@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Logging", "Logging\Logging.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommandInterface", "CommandInterface\CommandInterface.csproj", "{D9423093-1113-4485-BB94-9F52A8063A1F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ContinuousExecution", "ContinuousExecution\ContinuousExecution.csproj", "{C5DD5895-D878-4489-A2B3-5A6A2F09A4C7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -24,6 +26,8 @@ Global
 		{2FE40BDD-FAAA-476A-B8B5-8DA569FCEB1B}.Debug|x64.Build.0 = Debug|x64
 		{D9423093-1113-4485-BB94-9F52A8063A1F}.Debug|x64.ActiveCfg = Debug|x64
 		{D9423093-1113-4485-BB94-9F52A8063A1F}.Debug|x64.Build.0 = Debug|x64
+		{C5DD5895-D878-4489-A2B3-5A6A2F09A4C7}.Debug|x64.ActiveCfg = Debug|x64
+		{C5DD5895-D878-4489-A2B3-5A6A2F09A4C7}.Debug|x64.Build.0 = Debug|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
