@@ -1,25 +1,14 @@
 ﻿using IngameScript.Pulse.ContiniousExecution;
+using IngameScript.Pulse.Logging.Enums;
 using IngameScript.Pulse.Logging.Interfaces;
 using IngameScript.Pulse.Logging.Services;
-using Sandbox.Game.EntityComponents;
 using Sandbox.ModAPI.Ingame;
-using Sandbox.ModAPI.Interfaces;
-using SpaceEngineers.Game.ModAPI.Ingame;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
-using System.Text;
-using VRage;
-using VRage.Collections;
-using VRage.Game;
-using VRage.Game.Components;
-using VRage.Game.GUI.TextPanel;
-using VRage.Game.ModAPI.Ingame;
-using VRage.Game.ModAPI.Ingame.Utilities;
-using VRage.Game.ObjectBuilders.Definitions;
-using VRageMath;
+
+
+#pragma warning disable ProhibitedMemberRule // Prohibited Type Or Member
+
 
 namespace IngameScript
 {
@@ -28,9 +17,10 @@ namespace IngameScript
         ContiniousExecutor Executor;
 
         ILoggable Logger;
+
         public Program()
         {
-            Logger = new FlushLogger(new EchoLogger(Echo));
+            Logger = new FlushLogger(new EchoLogger(ConsoleEcho));
 
             Executor = new ContiniousExecutor(Logger);
 
@@ -38,36 +28,46 @@ namespace IngameScript
             Executor.Add(new ContiniousTask(GenerateArr, IncreaseOneArr, IncreaseOneArr, IncreaseOneArr));
             Executor.Add(new ContiniousTask(GenerateArr, IncreaseOneArr, IncreaseOneArr, IncreaseOneArr));
 
-        }
+        }  
 
         public void Main(string argument, UpdateType updateSource)
         {           
             long i = 1;
             while (true)
             {
-                Logger.LogLine("Program Tick: " + i++ + " ");
-                Executor.Execute(new NTicksTimeProvider(10));
+                Logger.LogLine($"Program Tick: {i++} ", LogLevel.Debug);
+                Executor.Execute(new NTicksTimeProvider(1));//for 1 task per tick
 
-                if (i == 10) break;
+                if (i == 100) break;
             }
 
-            Logger.Log("");
+            (Logger as IFlushable).Flush();
+
+            Console.ReadLine();
+        }
+
+        public void ConsoleEcho(string str)
+        {
+            Console.Write(str);
         }
 
         object IncreaseOneArr(object obj)
         {
             int[] arr = (int[])obj;
 
-            for (int i = 1; i < arr.Length; i++)
+            for (int i = 0; i < arr.Length; i++)
             {
-                arr[i-1]= i*5;
+                arr[i]= arr[i] + 1;
             }
+
+            Logger.LogLine($"IncreaseOneArr {arr[0]}", LogLevel.Debug);
 
             return arr;
         }
 
         object GenerateArr(object obj)
         {
+            Logger.LogLine($"Memory inited", LogLevel.Debug);
             return new int[10000];
         }
     }
@@ -129,7 +129,7 @@ namespace IngameScript.Pulse.ContiniousExecution
 
         public TaskExecutionStatus ExecuteNext()
         {
-            if (TaskIndex < _subTasks.Length)
+            if (TaskIndex <= _subTasks.Length)
             {
                 _lastReturnedValue = _subTasks[TaskIndex++].Invoke(_lastReturnedValue);
 
@@ -150,6 +150,7 @@ namespace IngameScript.Pulse.ContiniousExecution
         private List<ContiniousTask> _tasks = new List<ContiniousTask>();
 
         private ILoggable _logger;
+
         public ContiniousExecutor(ILoggable logger)
         {
             _logger = logger;
@@ -166,42 +167,34 @@ namespace IngameScript.Pulse.ContiniousExecution
 
         public void Execute(IAvailableTimeProvider availableTime)
         {
-            var executedTasksToRemove = new List<ContiniousTask>();
-
-            var availableTicks = availableTime.Get().Ticks;
+            long availableTicks = availableTime.Get().Ticks;
             long usedTicks = 0;
+
+            if (_tasks.Count == 0)
+                return;
 
             foreach (var task in _tasks)
             {
-                if (usedTicks >= availableTicks)
-                    break;
+                while(usedTicks < availableTicks)
+                {
+                    var beginIteration = DateTime.Now.Ticks;
 
-                if (task.TaskExecutionStatus == TaskExecutionStatus.NotExecuted)
-                {
-                    _logger.LogLine("Start task executing " + task.GetHashCode());
-                }
-                else if (task.TaskExecutionStatus == TaskExecutionStatus.NotFullyExecuted)
-                {
-                    _logger.LogLine("Continue task execution ");
-                }
+                    if (task.TaskExecutionStatus == TaskExecutionStatus.FullyExecuted)
+                        break;
+                    else
+                    {
+                        _logger.LogLine($"Execute task: {task.GetHashCode()} ", LogLevel.Debug);
 
-                while (usedTicks < availableTicks && task.TaskExecutionStatus != TaskExecutionStatus.FullyExecuted)
-                {
-                    var start = DateTime.Now;
-                    task.ExecuteNext();
-                    var end = DateTime.Now;
-                    //usedTicks += (end - start).Ticks; // Simulate that each task execution consumes 1 tick
-                    usedTicks += 1;
-                }
+                        task.ExecuteNext();
+                    }
 
-                if (task.TaskExecutionStatus == TaskExecutionStatus.FullyExecuted)
-                {
-                    executedTasksToRemove.Add(task);
-                    _logger.LogLine("Finished task execution " + task.GetHashCode());
+                    var endIteration = DateTime.Now.Ticks;
+
+                    usedTicks += endIteration - beginIteration;
                 }
             }
 
-            executedTasksToRemove.ForEach(t => _tasks.Remove(t));
+            _tasks.RemoveAll(t => t.TaskExecutionStatus == TaskExecutionStatus.FullyExecuted);
         }
 
     }

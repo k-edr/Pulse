@@ -13,6 +13,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommandInterface", "Command
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ContinuousExecution", "ContinuousExecution\ContinuousExecution.csproj", "{C5DD5895-D878-4489-A2B3-5A6A2F09A4C7}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Mixins", "Mixins", "{1AC87231-F1DA-4975-8FC1-87A8C24AFEE0}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Logging", "Mixin\Logging\Logging.shproj", "{61EBA249-19F3-48B6-A25B-A4CEE90168BA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -32,7 +36,14 @@ Global
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{61EBA249-19F3-48B6-A25B-A4CEE90168BA} = {1AC87231-F1DA-4975-8FC1-87A8C24AFEE0}
+	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {55B3FBAA-B0BD-4891-BF83-CD1735BD087B}
+	EndGlobalSection
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		Mixin\Logging\Logging.projitems*{61eba249-19f3-48b6-a25b-a4cee90168ba}*SharedItemsImports = 13
+		Mixin\Logging\Logging.projitems*{c5dd5895-d878-4489-a2b3-5a6a2f09a4c7}*SharedItemsImports = 4
 	EndGlobalSection
 EndGlobal

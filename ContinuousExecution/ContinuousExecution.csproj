@@ -50,15 +50,8 @@
     <AdditionalFiles Include="Instructions.readme" />
     <AdditionalFiles Include="thumb.png" />
     <AdditionalFiles Include="MDK\whitelist.cache" />
-    <Compile Include="Temp\Bases\BaseLogger.cs" />
-    <Compile Include="Temp\Enums\LogLevel.cs" />
-    <Compile Include="Temp\Interfaces\IFlushable.cs" />
-    <Compile Include="Temp\Interfaces\ILoggable.cs" />
-    <Compile Include="Temp\Services\EchoLogger.cs" />
-    <Compile Include="Temp\Services\FlushLogger.cs" />
-    <Compile Include="Temp\Services\LogLevelParser.cs" />
-    <Compile Include="Temp\Services\PanelLogger.cs" />
   </ItemGroup>
+  <Import Project="..\Mixin\Logging\Logging.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="AfterBuild">
     <Copy SourceFiles="MDK\MDK.options.props" DestinationFolder="$(TargetDir)\MDK" />
